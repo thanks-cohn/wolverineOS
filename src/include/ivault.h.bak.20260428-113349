@@ -1,0 +1,52 @@
+#ifndef IVAULT_H
+#define IVAULT_H
+
+#include <stddef.h>
+
+#define IVAULT_HASH_HEX_SIZE 17
+
+typedef struct {
+    char relpath[4096];
+    long long size;
+    long long inode;
+    long long mtime;
+    char hash[IVAULT_HASH_HEX_SIZE];
+} IvaultManifestEntry;
+
+typedef struct {
+    IvaultManifestEntry *entries;
+    size_t count;
+    size_t capacity;
+} IvaultManifest;
+
+int ivault_seal_path(const char *target_path);
+int ivault_verify_path(const char *target_path, const char *vault_path);
+int ivault_restore_path(const char *target_path, const char *vault_path);
+int ivault_prune_path(const char *target_path, const char *vault_path, int delete_mode);
+
+int ivault_ledger_append(const char *event, const char *target, const char *vault, const char *status, const char *detail);
+int ivault_history_print(void);
+int ivault_audit_print(void);
+int ivault_diff_vaults(const char *vault_a, const char *vault_b);
+int ivault_latest_print(void);
+int ivault_inspect_vault(const char *vault_path);
+int ivault_recover_file(const char *vault_path, const char *relpath, const char *output_path);
+int ivault_timeline_print(void);
+
+int ivault_manifest_load(const char *vault_path, IvaultManifest *manifest);
+void ivault_manifest_free(IvaultManifest *manifest);
+IvaultManifestEntry *ivault_manifest_find(IvaultManifest *manifest, const char *relpath);
+
+int ivault_hash_file_fnv1a64(const char *path, char *out_hex, size_t out_hex_size);
+
+int ivault_copy_file(const char *src, const char *dst);
+int ivault_mkdir_p(const char *path);
+int ivault_mkdir_parent_for_file(const char *path);
+int ivault_is_regular_file(const char *path);
+int ivault_is_directory(const char *path);
+int ivault_path_join(const char *a, const char *b, char *out, size_t out_size);
+int ivault_object_path_for_hash(const char *vault_path, const char *hash, char *out, size_t out_size);
+
+void ivault_log(const char *level, const char *fmt, ...);
+
+#endif

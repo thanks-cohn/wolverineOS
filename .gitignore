@@ -1,0 +1,16 @@
+# Build
+ivault
+*.o
+
+# Runtime data
+vaults/
+state/
+logs/
+quarantine/
+
+# Temp / tests
+/tmp/
+*.tmp
+
+# OS junk
+.DS_Store
