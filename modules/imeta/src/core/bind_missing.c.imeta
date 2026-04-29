@@ -1,0 +1,25 @@
+{
+  "imeta_version": "0.1.0",
+  "kind": "sidecar",
+  "asset": {
+    "path": "./src/core/bind_missing.c",
+    "sidecar_path": "./src/core/bind_missing.c.imeta",
+    "size_bytes": 5279,
+    "inode": 1402605,
+    "mtime": 1777285420,
+    "hash_fnv1a64": "aa7981896dcde5de"
+  },
+  "identity": {
+    "hash_method": "fnv1a64",
+    "hash": "aa7981896dcde5de"
+  },
+  "annotations": {
+    "caption": "",
+    "tags": []
+  },
+  "training": {
+    "enabled": false,
+    "type": "none"
+  },
+  "created_unix": 1777285814
+}

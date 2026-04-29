@@ -1,0 +1,25 @@
+{
+  "imeta_version": "0.1.0",
+  "kind": "sidecar",
+  "asset": {
+    "path": "./Makefile",
+    "sidecar_path": "./Makefile.imeta",
+    "size_bytes": 604,
+    "inode": 1401207,
+    "mtime": 1777285685,
+    "hash_fnv1a64": "40c07a67de099b24"
+  },
+  "identity": {
+    "hash_method": "fnv1a64",
+    "hash": "40c07a67de099b24"
+  },
+  "annotations": {
+    "caption": "",
+    "tags": []
+  },
+  "training": {
+    "enabled": false,
+    "type": "none"
+  },
+  "created_unix": 1777285701
+}

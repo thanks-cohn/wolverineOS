@@ -1,0 +1,25 @@
+{
+  "imeta_version": "0.1.0",
+  "kind": "sidecar",
+  "asset": {
+    "path": "./src/core/reconcile.c",
+    "sidecar_path": "./src/core/reconcile.c.imeta",
+    "size_bytes": 6984,
+    "inode": 1400643,
+    "mtime": 1777283480,
+    "hash_fnv1a64": "458622d8621e7252"
+  },
+  "identity": {
+    "hash_method": "fnv1a64",
+    "hash": "458622d8621e7252"
+  },
+  "annotations": {
+    "caption": "",
+    "tags": []
+  },
+  "training": {
+    "enabled": false,
+    "type": "none"
+  },
+  "created_unix": 1777285701
+}

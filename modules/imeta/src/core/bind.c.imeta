@@ -1,0 +1,25 @@
+{
+  "imeta_version": "0.1.0",
+  "kind": "sidecar",
+  "asset": {
+    "path": "./src/core/bind.c",
+    "sidecar_path": "./src/core/bind.c.imeta",
+    "size_bytes": 4504,
+    "inode": 1400325,
+    "mtime": 1777281601,
+    "hash_fnv1a64": "7ab60d01b5b27003"
+  },
+  "identity": {
+    "hash_method": "fnv1a64",
+    "hash": "7ab60d01b5b27003"
+  },
+  "annotations": {
+    "caption": "",
+    "tags": []
+  },
+  "training": {
+    "enabled": false,
+    "type": "none"
+  },
+  "created_unix": 1777285701
+}

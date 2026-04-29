@@ -1,0 +1,25 @@
+{
+  "imeta_version": "0.1.0",
+  "kind": "sidecar",
+  "asset": {
+    "path": "./src/core/index.c",
+    "sidecar_path": "./src/core/index.c.imeta",
+    "size_bytes": 1585,
+    "inode": 1399963,
+    "mtime": 1777281141,
+    "hash_fnv1a64": "f94ad9179af4c352"
+  },
+  "identity": {
+    "hash_method": "fnv1a64",
+    "hash": "f94ad9179af4c352"
+  },
+  "annotations": {
+    "caption": "",
+    "tags": []
+  },
+  "training": {
+    "enabled": false,
+    "type": "none"
+  },
+  "created_unix": 1777285701
+}

@@ -1,0 +1,25 @@
+{
+  "imeta_version": "0.1.0",
+  "kind": "sidecar",
+  "asset": {
+    "path": "demo_watch/hello.txt",
+    "sidecar_path": "demo_watch/hello.txt.imeta",
+    "size_bytes": 12,
+    "inode": 1404742,
+    "mtime": 1777288989,
+    "hash_fnv1a64": "62916a64c0d8c035"
+  },
+  "identity": {
+    "hash_method": "fnv1a64",
+    "hash": "62916a64c0d8c035"
+  },
+  "annotations": {
+    "caption": "",
+    "tags": []
+  },
+  "training": {
+    "enabled": false,
+    "type": "none"
+  },
+  "created_unix": 1777288989
+}

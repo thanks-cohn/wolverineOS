@@ -1,0 +1,12 @@
+[Unit]
+Description=imeta metadata watcher daemon
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=imeta-watchd %h/imeta_watch
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

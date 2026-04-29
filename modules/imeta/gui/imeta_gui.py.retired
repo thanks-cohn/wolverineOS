@@ -1,0 +1,316 @@
+#!/usr/bin/env python3
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+from PySide6.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
+    QFileDialog, QListWidget, QTextEdit, QLabel, QMessageBox,
+    QInputDialog
+)
+
+
+class ImetaGui(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("imeta Control Panel")
+        self.resize(1000, 700)
+
+        self.current_dir = None
+        self.current_file = None
+        self.current_sidecar = None
+
+        root = QVBoxLayout()
+        self.status = QLabel("Choose a folder to begin.")
+        root.addWidget(self.status)
+
+        top = QHBoxLayout()
+
+        btn_choose = QPushButton("Choose Watch Folder")
+        btn_choose.clicked.connect(self.choose_folder)
+        top.addWidget(btn_choose)
+
+        btn_start = QPushButton("Start Watcher")
+        btn_start.clicked.connect(lambda: self.systemctl("start"))
+        top.addWidget(btn_start)
+
+        btn_stop = QPushButton("Stop Watcher")
+        btn_stop.clicked.connect(lambda: self.systemctl("stop"))
+        top.addWidget(btn_stop)
+
+        btn_enable = QPushButton("Start Automatically on Login")
+        btn_enable.clicked.connect(lambda: self.systemctl("enable"))
+        top.addWidget(btn_enable)
+
+        btn_disable = QPushButton("Disable Automatic Start")
+        btn_disable.clicked.connect(lambda: self.systemctl("disable"))
+        top.addWidget(btn_disable)
+
+        root.addLayout(top)
+
+        actions = QHBoxLayout()
+
+        btn_bind = QPushButton("Bind Selected File")
+        btn_bind.clicked.connect(self.bind_selected)
+        actions.addWidget(btn_bind)
+
+        btn_bind_folder = QPushButton("Bind Whole Folder")
+        btn_bind_folder.clicked.connect(self.bind_folder)
+        actions.addWidget(btn_bind_folder)
+
+        btn_scan = QPushButton("Scan")
+        btn_scan.clicked.connect(lambda: self.run_imeta(["scan", str(self.current_dir), "--verbose"]))
+        actions.addWidget(btn_scan)
+
+        btn_doctor = QPushButton("Doctor")
+        btn_doctor.clicked.connect(lambda: self.run_imeta(["doctor", str(self.current_dir), "--verbose"]))
+        actions.addWidget(btn_doctor)
+
+        btn_reconcile = QPushButton("Reconcile")
+        btn_reconcile.clicked.connect(lambda: self.run_imeta(["reconcile", str(self.current_dir), "--verbose"]))
+        actions.addWidget(btn_reconcile)
+
+        root.addLayout(actions)
+
+        middle = QHBoxLayout()
+
+        left = QVBoxLayout()
+        left.addWidget(QLabel("Files"))
+        self.files = QListWidget()
+        self.files.itemClicked.connect(self.load_selected_file)
+        left.addWidget(self.files)
+        middle.addLayout(left, 2)
+
+        right = QVBoxLayout()
+        right.addWidget(QLabel(".imeta JSON"))
+
+        self.editor = QTextEdit()
+        right.addWidget(self.editor)
+
+        json_buttons = QHBoxLayout()
+
+        btn_add = QPushButton("+ Add Field")
+        btn_add.clicked.connect(self.add_field)
+        json_buttons.addWidget(btn_add)
+
+        btn_remove = QPushButton("- Remove Field")
+        btn_remove.clicked.connect(self.remove_field)
+        json_buttons.addWidget(btn_remove)
+
+        btn_save = QPushButton("Save .imeta")
+        btn_save.clicked.connect(self.save_sidecar)
+        json_buttons.addWidget(btn_save)
+
+        right.addLayout(json_buttons)
+
+        self.logs = QTextEdit()
+        self.logs.setReadOnly(True)
+        right.addWidget(QLabel("Logs"))
+        right.addWidget(self.logs)
+
+        middle.addLayout(right, 3)
+        root.addLayout(middle)
+
+        self.setLayout(root)
+
+    def log(self, text):
+        self.logs.append(text)
+
+    def run_cmd(self, cmd):
+        self.log("$ " + " ".join(cmd))
+        try:
+            result = subprocess.run(
+                cmd,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            self.log(result.stdout.strip())
+            return result.returncode
+        except Exception as e:
+            self.log(f"[GUI ERROR] {e}")
+            return 1
+
+    def run_imeta(self, args):
+        if self.current_dir is None:
+            QMessageBox.warning(self, "No folder", "Choose a folder first.")
+            return 1
+        return self.run_cmd(["imeta"] + args)
+
+    def systemctl(self, action):
+        self.run_cmd(["systemctl", "--user", action, "imeta-watchd"])
+
+    def choose_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Choose folder")
+        if not folder:
+            return
+
+        self.current_dir = Path(folder)
+        self.status.setText(f"Current folder: {self.current_dir}")
+        self.refresh_file_list()
+
+    def refresh_file_list(self):
+        self.files.clear()
+
+        if not self.current_dir:
+            return
+
+        for path in sorted(self.current_dir.iterdir()):
+            if path.is_file() and not path.name.endswith(".imeta"):
+                self.files.addItem(str(path))
+
+    def load_selected_file(self, item):
+        self.current_file = Path(item.text())
+        self.current_sidecar = Path(str(self.current_file) + ".imeta")
+
+        if not self.current_sidecar.exists():
+            self.editor.setText(json.dumps(self.default_sidecar(), indent=2))
+            self.status.setText(f"Loaded new sidecar draft for: {self.current_file.name}")
+            return
+
+        try:
+            data = json.loads(self.current_sidecar.read_text())
+            self.editor.setText(json.dumps(data, indent=2))
+            self.status.setText(f"Loaded: {self.current_sidecar}")
+        except Exception as e:
+            QMessageBox.warning(self, "JSON error", f"Could not read sidecar:\n{e}")
+
+    def default_sidecar(self):
+        return {
+            "imeta_version": "0.1.0",
+            "kind": "sidecar",
+            "asset": {
+                "path": str(self.current_file) if self.current_file else "",
+                "sidecar_path": str(self.current_sidecar) if self.current_sidecar else "",
+            },
+            "identity": {},
+            "annotations": {
+                "caption": "",
+                "tags": []
+            },
+            "training": {
+                "enabled": False,
+                "type": "none"
+            },
+            "custom": {}
+        }
+
+    def get_json(self):
+        try:
+            return json.loads(self.editor.toPlainText())
+        except Exception as e:
+            QMessageBox.warning(self, "Invalid JSON", f"JSON is not valid:\n{e}")
+            return None
+
+    def set_json(self, data):
+        self.editor.setText(json.dumps(data, indent=2))
+
+    def add_field(self):
+        data = self.get_json()
+        if data is None:
+            return
+
+        path, ok = QInputDialog.getText(
+            self,
+            "Add Field",
+            "Field path, example: custom.artist_notes.mood"
+        )
+        if not ok or not path.strip():
+            return
+
+        value, ok = QInputDialog.getText(
+            self,
+            "Field Value",
+            "Value, example: cold blue atmosphere"
+        )
+        if not ok:
+            return
+
+        keys = [k.strip() for k in path.split(".") if k.strip()]
+        if not keys:
+            return
+
+        node = data
+        for key in keys[:-1]:
+            if key not in node or not isinstance(node[key], dict):
+                node[key] = {}
+            node = node[key]
+
+        node[keys[-1]] = value
+        self.set_json(data)
+
+    def remove_field(self):
+        data = self.get_json()
+        if data is None:
+            return
+
+        path, ok = QInputDialog.getText(
+            self,
+            "Remove Field",
+            "Field path, example: custom.artist_notes.mood"
+        )
+        if not ok or not path.strip():
+            return
+
+        keys = [k.strip() for k in path.split(".") if k.strip()]
+        if not keys:
+            return
+
+        node = data
+        for key in keys[:-1]:
+            if key not in node or not isinstance(node[key], dict):
+                QMessageBox.warning(self, "Not found", "That field path does not exist.")
+                return
+            node = node[key]
+
+        if keys[-1] in node:
+            del node[keys[-1]]
+            self.set_json(data)
+        else:
+            QMessageBox.warning(self, "Not found", "That field does not exist.")
+
+    def save_sidecar(self):
+        if not self.current_sidecar:
+            QMessageBox.warning(self, "No file", "Select a file first.")
+            return
+
+        data = self.get_json()
+        if data is None:
+            return
+
+        self.current_sidecar.write_text(json.dumps(data, indent=2) + "\n")
+        self.status.setText(f"Saved: {self.current_sidecar}")
+        self.refresh_file_list()
+
+    def bind_selected(self):
+        if not self.current_file:
+            QMessageBox.warning(self, "No file", "Select a file first.")
+            return
+
+        self.run_cmd(["imeta", "bind", str(self.current_file), "--verbose"])
+        self.current_sidecar = Path(str(self.current_file) + ".imeta")
+        self.load_selected_file(type("Item", (), {"text": lambda _: str(self.current_file)})())
+
+    def bind_folder(self):
+        if not self.current_dir:
+            QMessageBox.warning(self, "No folder", "Choose a folder first.")
+            return
+
+        self.run_cmd(["imeta", "scan", str(self.current_dir), "--verbose"])
+        self.run_cmd(["imeta", "bind-missing", str(self.current_dir), "--verbose"])
+        self.run_cmd(["imeta", "scan", str(self.current_dir), "--verbose"])
+        self.refresh_file_list()
+
+
+def main():
+    app = QApplication(sys.argv)
+    win = ImetaGui()
+    win.show()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
