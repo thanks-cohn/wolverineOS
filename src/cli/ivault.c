@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "ivault.h"
+#include "wos_memory.h"
 
 static void usage(void) {
     printf("ivault - WolverineOS resurrection vault\n\n");
@@ -19,6 +20,13 @@ static void usage(void) {
     printf("  ivault history\n");
     printf("  ivault audit\n");
     printf("  ivault watch <target-folder> <vault-folder> [--interval N] [--cycles N] [--auto-restore] [--auto-prune] [--delete]\n");
+    printf("  ivault edit <file>\n");
+    printf("  ivault view <file>\n");
+    printf("  ivault push\n");
+    printf("  ivault tag <file-or-dir> \"tag | tag2 | tag3\" [--nested]\n");
+    printf("  ivault note <file-or-dir> \"free text note\" [--nested]\n");
+    printf("  ivault summary <file-or-dir> \"free text summary\" [--nested]\n");
+    printf("  ivault custom <file-or-dir> <field> \"value | value2\" [--nested]\n");
 }
 
 static int parse_positive_int(const char *s, int fallback) {
@@ -34,10 +42,71 @@ static int parse_positive_int(const char *s, int fallback) {
     return (int)v;
 }
 
+static int has_nested_flag(int argc, char **argv, int pos) {
+    if (argc > pos && strcmp(argv[pos], "--nested") == 0) return 1;
+    return 0;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) {
         usage();
         return 1;
+    }
+
+    if (strcmp(argv[1], "edit") == 0) {
+        if (argc != 3) {
+            fprintf(stderr, "Usage: ivault edit <file>\n");
+            return 1;
+        }
+        return wos_memory_edit(argv[2]);
+    }
+
+    if (strcmp(argv[1], "view") == 0) {
+        if (argc != 3) {
+            fprintf(stderr, "Usage: ivault view <file>\n");
+            return 1;
+        }
+        return wos_memory_view(argv[2]);
+    }
+
+    if (strcmp(argv[1], "push") == 0) {
+        if (argc != 2) {
+            fprintf(stderr, "Usage: ivault push\n");
+            return 1;
+        }
+        return wos_memory_push();
+    }
+
+    if (strcmp(argv[1], "tag") == 0) {
+        if (argc != 4 && argc != 5) {
+            fprintf(stderr, "Usage: ivault tag <file-or-dir> \"tag | tag2 | tag3\" [--nested]\n");
+            return 1;
+        }
+        return wos_memory_tag(argv[2], argv[3], has_nested_flag(argc, argv, 4));
+    }
+
+    if (strcmp(argv[1], "note") == 0) {
+        if (argc != 4 && argc != 5) {
+            fprintf(stderr, "Usage: ivault note <file-or-dir> \"free text note\" [--nested]\n");
+            return 1;
+        }
+        return wos_memory_note(argv[2], argv[3], has_nested_flag(argc, argv, 4));
+    }
+
+    if (strcmp(argv[1], "summary") == 0) {
+        if (argc != 4 && argc != 5) {
+            fprintf(stderr, "Usage: ivault summary <file-or-dir> \"free text summary\" [--nested]\n");
+            return 1;
+        }
+        return wos_memory_summary(argv[2], argv[3], has_nested_flag(argc, argv, 4));
+    }
+
+    if (strcmp(argv[1], "custom") == 0) {
+        if (argc != 5 && argc != 6) {
+            fprintf(stderr, "Usage: ivault custom <file-or-dir> <field> \"value | value2\" [--nested]\n");
+            return 1;
+        }
+        return wos_memory_custom(argv[2], argv[3], argv[4], has_nested_flag(argc, argv, 5));
     }
 
     if (strcmp(argv[1], "seal") == 0) {

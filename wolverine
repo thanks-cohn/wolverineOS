@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+cmd="$1"
+target="$2"
+
+if [ "$cmd" = "protect" ]; then
+    if [ -z "$target" ]; then
+        echo "Usage: ./wolverine protect <directory>"
+        exit 1
+    fi
+
+    echo "[+] Scanning with imeta..."
+    ./imeta scan "$target"
+
+    echo "[+] Sealing with ivault..."
+    ./ivault seal "$target"
+
+    echo "[✓] Protected: $target"
+    exit 0
+fi
+
+echo "Usage:"
+echo "  ./wolverine protect <directory>"
