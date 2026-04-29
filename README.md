@@ -1,15 +1,22 @@
+```
 ██╗    ██╗ ██████╗ ██╗     ██╗   ██╗███████╗██████╗ ██╗███╗   ██╗███████╗
 ██║    ██║██╔═══██╗██║     ██║   ██║██╔════╝██╔══██╗██║████╗  ██║██╔════╝
 ██║ █╗ ██║██║   ██║██║     ██║   ██║█████╗  ██████╔╝██║██╔██╗ ██║█████╗  
 ██║███╗██║██║   ██║██║     ██║   ██║██╔══╝  ██╔══██╗██║██║╚██╗██║██╔══╝  
 ╚███╔███╔╝╚██████╔╝███████╗╚██████╔╝███████╗██║  ██║██║██║ ╚████║███████╗
  ╚══╝╚══╝  ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝
+```
+
 
 WolverineOS — Portable Machine. Baremetal Philosophy.
+
+
 ░░ WHAT IS THIS ░░
 
 WolverineOS is not a framework.
+
 It is not a library.
+
 It is not a pile of scripts.
 
 It is a machine.
@@ -28,12 +35,22 @@ It runs.
 No hidden state. No dependency maze. No guessing.
 
 ░░ CORE PRINCIPLES ░░
+
 Portable — runs anywhere with gcc + make
+
 Local-first — no cloud required
+
 Inspectible — everything is plain text or C
+
 Deterministic — what you build is what you run
+
 State-aware — memory lives alongside code
+
 Crash-safe — logs tell you exactly what happened
+
+
+
+
 ░░ QUICK START ░░
 
 Clone and build:
