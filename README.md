@@ -94,4 +94,3 @@ Modern systems hide recovery behind clouds, opaque databases, vendor lock-in, an
 
 iVault keeps the recovery substrate plain: manifests, objects, hashes, ledgers, quarantine, and deterministic rebuilds. It is small enough to audit, fast enough to run anywhere, and simple enough to wrap with a GUI later.
 
-This is the kind of foundation WolverineOS needs: a machine memory that does not beg permission to survive.
