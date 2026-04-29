@@ -1,96 +1,143 @@
-# ivault v0.5 — Timewalker
+██╗    ██╗ ██████╗ ██╗     ██╗   ██╗███████╗██████╗ ██╗███╗   ██╗███████╗
+██║    ██║██╔═══██╗██║     ██║   ██║██╔════╝██╔══██╗██║████╗  ██║██╔════╝
+██║ █╗ ██║██║   ██║██║     ██║   ██║█████╗  ██████╔╝██║██╔██╗ ██║█████╗  
+██║███╗██║██║   ██║██║     ██║   ██║██╔══╝  ██╔══██╗██║██║╚██╗██║██╔══╝  
+╚███╔███╔╝╚██████╔╝███████╗╚██████╔╝███████╗██║  ██║██║██║ ╚████║███████╗
+ ╚══╝╚══╝  ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝
 
-`ivault` is the WolverineOS resurrection vault: a tiny C-first recovery core that seals folders into content-addressed vaults, verifies live folders, restores damage, quarantines unknown extras, compares vaults, and now walks time.
+WolverineOS — Portable Machine. Baremetal Philosophy.
+░░ WHAT IS THIS ░░
 
-The Wolverine principle is simple: if one valid vault remains, the machine can rebuild itself.
+WolverineOS is not a framework.
+It is not a library.
+It is not a pile of scripts.
 
-## Commands
+It is a machine.
 
-```bash
-./ivault seal <target-folder>
-./ivault verify <target-folder> <vault-folder>
-./ivault restore <target-folder> <vault-folder>
-./ivault prune <target-folder> <vault-folder> [--delete]
-./ivault diff <vault-a> <vault-b>
-./ivault latest
-./ivault inspect <vault-folder>
-./ivault recover-file <vault-folder> <relpath> <output-path>
-./ivault timeline
-./ivault history
-./ivault audit
-```
+A system where:
 
-## What v0.5 adds
+folders are units of life
+config is the brain
+logs are memory
+binaries are muscle
 
-`latest` prints the newest usable vault in `vaults/`.
+You clone it.
+You build it.
+It runs.
 
-`inspect` summarizes a vault: file count, total bytes, PDFs, sidecars, text files, and object store location.
+No hidden state. No dependency maze. No guessing.
 
-`recover-file` restores one file from a vault to a chosen output path without touching the rest of the live folder.
+░░ CORE PRINCIPLES ░░
+Portable — runs anywhere with gcc + make
+Local-first — no cloud required
+Inspectible — everything is plain text or C
+Deterministic — what you build is what you run
+State-aware — memory lives alongside code
+Crash-safe — logs tell you exactly what happened
+░░ QUICK START ░░
 
-`timeline` lists all vaults with file counts and byte totals.
+Clone and build:
 
-Together these make iVault usable as a daily resurrection tool, not just a bulk restore hammer.
-
-## Build
-
-```bash
+git clone https://github.com/thanks-cohn/wolverineOS.git
+cd wolverineOS
+make clean
 make
-```
 
-## Built-in full test
+Run:
 
-```bash
-make test
-```
+./ivault
+./menu
+./imeta doctor
 
-Final clean state should include:
+If that works, the machine is alive.
 
-```text
-MISSING: 0
-CORRUPTED: 0
-EXTRA: 0
-ERRORS: 0
-STATUS: CLEAN
-```
+░░ COMPONENTS ░░
+ivault
 
-## Real-world test
+Core system interface.
+Handles sealing, restore, pruning, and system state.
 
-```bash
-rm -rf /tmp/ivault-real-test
-mkdir -p /tmp/ivault-real-test
-cp ~/Downloads/lively_father_in_law.pdf /tmp/ivault-real-test/
+menu
 
-./ivault seal /tmp/ivault-real-test
-VAULT="$(find vaults -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)"
+Interactive entry point.
+Lightweight navigation layer.
 
-./ivault latest
-./ivault inspect "$VAULT"
-./ivault verify /tmp/ivault-real-test "$VAULT"
-```
+imeta
 
-Damage and resurrect:
+Metadata engine.
+Scans, indexes, binds, and verifies system structure.
 
-```bash
-echo "ruined" > /tmp/ivault-real-test/lively_father_in_law.pdf
-echo "intruder" > /tmp/ivault-real-test/extra.txt
+imeta-watchd
 
-./ivault verify /tmp/ivault-real-test "$VAULT" || true
-./ivault restore /tmp/ivault-real-test "$VAULT"
-./ivault prune /tmp/ivault-real-test "$VAULT"
-./ivault verify /tmp/ivault-real-test "$VAULT"
-```
+Background watcher.
+Maintains system awareness in real time.
 
-Recover one file elsewhere:
+░░ PROJECT STRUCTURE ░░
+src/
+  cli/        → user-facing commands
+  core/       → system logic
+  include/    → headers
 
-```bash
-mkdir -p /tmp/ivault-one-file
-./ivault recover-file "$VAULT" "lively_father_in_law.pdf" /tmp/ivault-one-file/lively_father_in_law.pdf
-```
+modules/
+  imeta/      → metadata subsystem
 
-## Why this matters
+.wolverine/   → system memory (runtime state)
+.imeta/       → metadata storage
+░░ BUILD ░░
+make clean
+make
 
-Modern systems hide recovery behind clouds, opaque databases, vendor lock-in, and panic buttons that only work until they do not.
+Requirements:
 
-iVault keeps the recovery substrate plain: manifests, objects, hashes, ledgers, quarantine, and deterministic rebuilds. It is small enough to audit, fast enough to run anywhere, and simple enough to wrap with a GUI later.
+gcc
+make
+Linux environment
+░░ PHILOSOPHY ░░
 
+Most software separates code from reality.
+
+WolverineOS does not.
+
+This system can be used two ways:
+
+Source Mode
+Track only code. Clean, minimal, portable.
+Machine Mode
+Track everything — logs, state, memory.
+Git becomes a time machine.
+
+Choose intentionally.
+
+░░ CURRENT STATE ░░
+Build: ✅ working
+CLI tools: ✅ functional
+Metadata system: ✅ active
+Runtime memory: evolving
+Interface: minimal, growing
+░░ NEXT STEPS ░░
+unified wolverine command
+snapshot / publish system
+traversal UX (number-based navigation)
+structured logging expansion
+GUI layer (optional, not required)
+░░ CONTRIBUTING ░░
+
+If you understand what this is trying to become, you’re already part of it.
+
+Keep things:
+
+simple
+explicit
+inspectable
+fast
+
+No magic.
+
+░░ FINAL NOTE ░░
+
+This is not trying to be everything.
+
+It is trying to be inevitable.
+
+A system you can drop anywhere
+and it just… works.
