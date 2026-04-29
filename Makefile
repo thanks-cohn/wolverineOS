@@ -1,18 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -O2 -std=c11 -I./src/include
 
-SRC=src/cli/ivault.c \
-    src/core/seal.c \
-    src/core/verify.c \
-    src/core/restore.c \
-    src/core/prune.c \
-    src/core/ledger.c \
-    src/core/timewalker.c \
-    src/core/watch.c \
-    src/core/manifest.c \
-    src/core/hash.c \
-    src/core/fs.c \
-    src/core/log.c
+SRC=src/cli/ivault.c src/core/seal.c src/core/verify.c src/core/restore.c src/core/prune.c src/core/ledger.c src/core/timewalker.c src/core/watch.c src/core/manifest.c src/core/hash.c src/core/fs.c src/core/log.c
 
 BIN=ivault
 
