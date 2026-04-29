@@ -1,5 +1,7 @@
 # Build
 ivault
+imeta
+imeta-watchd
 *.o
 
 # Runtime data
@@ -11,6 +13,8 @@ quarantine/
 # Temp / tests
 /tmp/
 *.tmp
+tests/timewalker/demo/
+tests/timewalker/recovered/
 
 # OS junk
 .DS_Store
