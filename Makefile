@@ -7,7 +7,8 @@ SRC=src/cli/ivault.c \
     src/core/restore.c \
     src/core/prune.c \
     src/core/ledger.c \
-    src/core/timewalker.c src/core/watch.c \
+    src/core/timewalker.c \
+    src/core/watch.c \
     src/core/manifest.c \
     src/core/hash.c \
     src/core/fs.c \
@@ -15,48 +16,20 @@ SRC=src/cli/ivault.c \
 
 BIN=ivault
 
-all: $(BIN)
+all: $(BIN) imeta
 
 $(BIN): $(SRC)
 	$(CC) $(CFLAGS) -o $(BIN) $(SRC)
 
+imeta:
+	$(MAKE) -C modules/imeta
+	cp modules/imeta/imeta ./imeta
+	cp modules/imeta/imeta-watchd ./imeta-watchd
+
 clean:
-	rm -f $(BIN)
-	rm -rf tests/timewalker/demo tests/timewalker/recovered vaults/* state/ledger.tsv state/quarantine
+	rm -f $(BIN) imeta imeta-watchd
+	$(MAKE) -C modules/imeta clean
+	rm -rf tests/timewalker/demo tests/timewalker/recovered vaults state logs
+	mkdir -p vaults state logs
 	touch vaults/.gitkeep state/.gitkeep logs/.gitkeep
 
-test: all
-	rm -rf tests/timewalker/demo tests/timewalker/recovered vaults/* state/ledger.tsv state/quarantine
-	mkdir -p tests/timewalker/demo/docs tests/timewalker/recovered
-	echo "alpha" > tests/timewalker/demo/a.txt
-	echo "beta" > tests/timewalker/demo/docs/b.txt
-	./ivault seal tests/timewalker/demo
-	@sleep 1; \
-	VAULT_A=$$(find vaults -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1); \
-	echo "gamma" > tests/timewalker/demo/c.txt; \
-	echo "beta changed" > tests/timewalker/demo/docs/b.txt; \
-	./ivault seal tests/timewalker/demo; \
-	VAULT_B=$$(find vaults -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1); \
-	echo ""; echo "=== LATEST ==="; \
-	./ivault latest; \
-	echo ""; echo "=== INSPECT LATEST ==="; \
-	./ivault inspect "$$VAULT_B"; \
-	echo ""; echo "=== DIFF A -> B ==="; \
-	./ivault diff "$$VAULT_A" "$$VAULT_B" || true; \
-	echo ""; echo "=== RECOVER ONE FILE ==="; \
-	./ivault recover-file "$$VAULT_B" "a.txt" tests/timewalker/recovered/a.txt; \
-	cat tests/timewalker/recovered/a.txt; \
-	echo ""; echo "=== TIMELINE ==="; \
-	./ivault timeline; \
-	echo ""; echo "=== DAMAGE / RESTORE / PRUNE ==="; \
-	rm tests/timewalker/demo/a.txt; \
-	echo "corrupted" > tests/timewalker/demo/docs/b.txt; \
-	echo "intruder" > tests/timewalker/demo/extra.txt; \
-	./ivault verify tests/timewalker/demo "$$VAULT_B" || true; \
-	./ivault restore tests/timewalker/demo "$$VAULT_B"; \
-	./ivault prune tests/timewalker/demo "$$VAULT_B"; \
-	./ivault verify tests/timewalker/demo "$$VAULT_B"; \
-	echo ""; echo "=== HISTORY ==="; \
-	./ivault history; \
-	echo ""; echo "=== AUDIT ==="; \
-	./ivault audit
